@@ -1,0 +1,101 @@
+import dress from './assets/dress.jpeg'
+import premiumBotcut from './assets/premium-botcut.jpeg'
+import wideLegTrouser from './assets/wide-leg-trouser.jpeg'
+import importedCombo from './assets/imported-combo.jpeg'
+import leatherBelt from './assets/leather-belt.jpeg'
+
+const products = [
+  {
+    id: 1,
+    name: "Imported Shirt",
+    category: "Men",
+    price: 185,
+    badge: "New",
+    image: dress,
+    rating: 4.8,
+    reviews: 24,
+  },
+  {
+    id: 2,
+    name: "premium-botcut",
+    category: "Men",
+    price: 220,
+    badge: null,
+    image: premiumBotcut,
+    rating: 4.6,
+    reviews: 18,
+  },
+  {
+    id: 3,
+    name: "Wide-Leg Trouser",
+    category: "Women",
+    price: 130,
+    badge: "Sale",
+    salePrice: 89,
+    image: wideLegTrouser,
+    rating: 4.7,
+    reviews: 31,
+  },
+  {
+    id: 4,
+    name: "imported-combo",
+    category: "Men",
+    price: 295,
+    badge: "New",
+    image: importedCombo,
+    rating: 4.5,
+    reviews: 12,
+  },
+  {
+    id: 5,
+    name: "Slim Chinos",
+    category: "Men",
+    price: 115,
+    badge: null,
+    image: null,
+    rating: 4.4,
+    reviews: 20,
+  },
+  {
+    id: 6,
+    name: "Leather Belt",
+    category: "Accessories",
+    price: 65,
+    badge: null,
+    image: leatherBelt,
+    rating: 4.9,
+    reviews: 45,
+  },
+  {
+    id: 7,
+    name: "Cashmere Turtleneck",
+    category: "Women",
+    price: 260,
+    badge: "New",
+    image: null,
+    rating: 4.8,
+    reviews: 9,
+  },
+  {
+    id: 8,
+    name: "Merino Crewneck",
+    category: "Men",
+    price: 175,
+    badge: null,
+    image: null,
+    rating: 4.6,
+    reviews: 17,
+  },
+  {
+    id: 9,
+    name: "Woven Tote",
+    category: "Accessories",
+    price: 145,
+    badge: "New",
+    image: null,
+    rating: 4.7,
+    reviews: 28,
+  },
+]
+
+export default products

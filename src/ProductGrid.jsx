@@ -2,13 +2,17 @@ import { useState } from 'react'
 import ProductCard from './ProductCard'
 import { useProducts } from './useProducts'
 import AddProductModal from './AddProductModal'
+import SearchBar from './SearchBar'
+import { useAdmin } from './AdminContext'
 
 const filters = ['All', 'Women', 'Men', 'Accessories']
 
 function ProductGrid({ onAddToCart }) {
   const [activeFilter, setActiveFilter] = useState('All')
   const [showModal, setShowModal] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { products, loading, updateProduct, addProduct } = useProducts()
+  const { isAdmin } = useAdmin()
 
   function handleImageUpload(id, imageUrl) {
     updateProduct(id, { image: imageUrl })
@@ -22,9 +26,9 @@ function ProductGrid({ onAddToCart }) {
     addProduct(newProduct)
   }
 
-  const filteredProducts = activeFilter === 'All'
-    ? products
-    : products.filter(p => p.category === activeFilter)
+  const filteredProducts = products
+    .filter(p => activeFilter === 'All' || p.category === activeFilter)
+    .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   if (loading) {
     return (
@@ -40,13 +44,17 @@ function ProductGrid({ onAddToCart }) {
     <section style={styles.section}>
       <div style={styles.header}>
         <p style={styles.title}>Featured Pieces</p>
-        <button
-          style={styles.newProductBtn}
-          onClick={() => setShowModal(true)}
-        >
-          ➕ Add New Product
-        </button>
+        {isAdmin && (
+          <button
+            style={styles.newProductBtn}
+            onClick={() => setShowModal(true)}
+          >
+            ➕ Add New Product
+          </button>
+        )}
       </div>
+
+      <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
       <div style={styles.filterBar}>
         {filters.map(filter => (
@@ -65,6 +73,12 @@ function ProductGrid({ onAddToCart }) {
         ))}
       </div>
 
+      {filteredProducts.length === 0 && (
+        <div style={styles.noResults}>
+          <p>No products found for "<strong>{searchQuery}</strong>"</p>
+        </div>
+      )}
+
       <div style={styles.grid}>
         {filteredProducts.map(product => (
           <ProductCard
@@ -73,6 +87,7 @@ function ProductGrid({ onAddToCart }) {
             onAddToCart={onAddToCart}
             onImageUpload={handleImageUpload}
             onUpdateProduct={handleUpdateProduct}
+            isAdmin={isAdmin}
           />
         ))}
       </div>
@@ -131,6 +146,12 @@ const styles = {
     fontFamily: 'inherit',
     transition: 'all 0.2s ease',
     cursor: 'pointer',
+  },
+  noResults: {
+    textAlign: 'center',
+    padding: '3rem',
+    color: '#888',
+    fontSize: '14px',
   },
   grid: {
     display: 'grid',

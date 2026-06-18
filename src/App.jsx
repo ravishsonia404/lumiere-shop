@@ -4,10 +4,57 @@ import Navbar from './Navbar'
 import Hero from './Hero'
 import ProductGrid from './ProductGrid'
 import CartDrawer from './CartDrawer'
+import { AdminProvider } from './AdminContext'
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'
+import { db } from './firebase'
 
 function App() {
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
+  const [email, setEmail] = useState('')
+  const [joinStatus, setJoinStatus] = useState('idle')
+  const [joinError, setJoinError] = useState('')
+
+  async function handleJoin() {
+    const trimmed = email.trim()
+
+    if (!trimmed) {
+      setJoinError('Please enter your email.')
+      return
+    }
+    if (!trimmed.includes('@')) {
+      setJoinError('Please enter a valid email.')
+      return
+    }
+
+    setJoinStatus('loading')
+    setJoinError('')
+
+    try {
+      const q = query(
+        collection(db, 'subscribers'),
+        where('email', '==', trimmed)
+      )
+      const existing = await getDocs(q)
+
+      if (!existing.empty) {
+        setJoinError('This email is already subscribed!')
+        setJoinStatus('idle')
+        return
+      }
+
+      await addDoc(collection(db, 'subscribers'), {
+        email: trimmed,
+        joinedAt: new Date().toISOString(),
+      })
+
+      setJoinStatus('done')
+      setEmail('')
+    } catch (err) {
+      setJoinError('Something went wrong. Try again.')
+      setJoinStatus('idle')
+    }
+  }
 
   function handleAddToCart(product) {
     setCart(prevCart => {
@@ -39,40 +86,41 @@ function App() {
   const cartCount = cart.reduce((total, item) => total + item.qty, 0)
 
   return (
-    <div>
-      <Navbar cartCount={cartCount} onCartClick={() => setCartOpen(true)} />
-      <Hero />
-      <ProductGrid onAddToCart={handleAddToCart} />
+    <AdminProvider>
+      <div>
+        <Navbar cartCount={cartCount} onCartClick={() => setCartOpen(true)} />
+        <Hero />
+        <ProductGrid onAddToCart={handleAddToCart} />
 
-      <section style={styles.banner}>
-        <p style={styles.bannerEyebrow}>Exclusive Access</p>
-        <h2 style={styles.bannerTitle}>Join the inner circle</h2>
-        <p style={styles.bannerSub}>
-          Early access to new arrivals, private sales, and styling notes.
-        </p>
-        <div style={styles.inputRow}>
-          <input
-            type="email"
-            placeholder="your@email.com"
-            style={styles.input}
-          />
-          <button style={styles.joinBtn}>Join</button>
-        </div>
-      </section>
+        <section style={styles.banner}>
+          <p style={styles.bannerEyebrow}>Exclusive Access</p>
+          <h2 style={styles.bannerTitle}>Join the inner circle</h2>
+          <p style={styles.bannerSub}>
+            Early access to new arrivals, private sales, and styling notes.
+          </p>
+          <div style={styles.inputRow}>
+            <input type="email" placeholder="your@email.com" style={styles.input} value={email} onChange={e => setEmail(e.target.value)} />
+              <button style={styles.joinBtn} onClick={handleJoin}>
+                {joinStatus === 'loading' ? 'Joining...' : joinStatus === 'done' ? '✓ Joined!' : 'Join'}
+              </button>
+          </div>
+          {joinError && <p style={styles.joinError}>{joinError}</p>}
+        </section>
 
-      <footer style={styles.footer}>
-        <p style={styles.footerLogo}>LUMIÈRE</p>
-        <p>© 2026 · About · Sustainability · Returns · Privacy</p>
-      </footer>
+        <footer style={styles.footer}>
+          <p style={styles.footerLogo}>LUMIÈRE</p>
+          <p>© 2026 · About · Sustainability · Returns · Privacy</p>
+        </footer>
 
-      <CartDrawer
-        isOpen={cartOpen}
-        onClose={() => setCartOpen(false)}
-        cart={cart}
-        onChangeQty={handleChangeQty}
-        onRemove={handleRemove}
-      />
-    </div>
+        <CartDrawer
+          isOpen={cartOpen}
+          onClose={() => setCartOpen(false)}
+          cart={cart}
+          onChangeQty={handleChangeQty}
+          onRemove={handleRemove}
+        />
+      </div>
+    </AdminProvider>
   )
 }
 
@@ -127,6 +175,12 @@ const styles = {
     textTransform: 'uppercase',
     fontWeight: '500',
     fontFamily: 'inherit',
+    cursor: 'pointer',
+  },
+  joinError: {
+  fontSize: '12px',
+  color: '#ff8080',
+  marginTop: '8px',
   },
   footer: {
     padding: '2rem',

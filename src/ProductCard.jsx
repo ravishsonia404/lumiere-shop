@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { imageToBase64 } from './imageToBase64'
 
-function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct }) {
+function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct, isAdmin }) {
   const [isEditing, setIsEditing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [editData, setEditData] = useState({
@@ -68,16 +68,19 @@ function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct }) {
           </span>
         )}
 
-        <label style={styles.uploadBtn}>
-          {uploading ? '⏳ Saving...' : '📷 Upload Photo'}
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-            disabled={uploading}
-          />
-        </label>
+      {isAdmin && (
+          <label style={styles.uploadBtn}>
+            {uploading ? '⏳ Saving...' : '📷 Upload Photo'}
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+              disabled={uploading}
+            />
+          </label>
+        )} 
+
       </div>
 
       <div style={styles.info}>
@@ -106,16 +109,20 @@ function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct }) {
               <option value="Sale">Sale</option>
             </select>
 
-            <div style={styles.editButtons}>
-              <button style={styles.saveBtn} onClick={handleSave}>✓ Save</button>
-              <button style={styles.cancelBtn} onClick={handleCancel}>✕ Cancel</button>
-            </div>
+          {isAdmin && (
+            <button style={styles.editBtn} onClick={() => setIsEditing(true)}>
+              ✏️ Edit
+            </button>
+          )} 
+
           </div>
         ) : (
           <>
             <div style={styles.nameRow}>
               <p style={styles.name}>{product.name}</p>
-              <button style={styles.editBtn} onClick={() => setIsEditing(true)}>✏️ Edit</button>
+              {isAdmin && ( 
+               <button style={styles.editBtn} onClick={() => setIsEditing(true)}>✏️ Edit</button>
+              )} 
             </div>
 
             <div style={styles.row}>

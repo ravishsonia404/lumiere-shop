@@ -19,3 +19,14 @@ button {
   cursor: pointer;
   font-family: inherit;
 }
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
+}
+
+input, button, select {
+  font-size: 16px !important;
+}

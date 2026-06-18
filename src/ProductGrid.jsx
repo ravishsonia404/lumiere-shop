@@ -104,7 +104,7 @@ function ProductGrid({ onAddToCart }) {
 
 const styles = {
   section: {
-    padding: '3rem 2rem',
+    padding: '2rem 1rem',
     backgroundColor: '#ffffff',
     marginTop: '1px',
   },
@@ -155,7 +155,7 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
     gap: '1.5rem',
   },
 }

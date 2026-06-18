@@ -1,8 +1,18 @@
+import { useIsMobile } from './useIsMobile'
+
 function Hero() {
+  const isMobile = useIsMobile()
+
   return (
-    <section style={styles.section}>
+    <section style={{
+      ...styles.section,
+      padding: isMobile ? '3rem 1.5rem' : '5rem 2rem',
+    }}>
       <p style={styles.eyebrow}>Summer Collection 2026</p>
-      <h1 style={styles.title}>
+      <h1 style={{
+        ...styles.title,
+        fontSize: isMobile ? '32px' : '48px',
+      }}>
         Dress for the <em style={styles.italic}>life you want</em>
       </h1>
       <p style={styles.subtitle}>
@@ -16,7 +26,6 @@ function Hero() {
 const styles = {
   section: {
     backgroundColor: '#ffffff',
-    padding: '5rem 2rem',
     textAlign: 'center',
     borderBottom: '1px solid #e5e5e5',
   },
@@ -28,7 +37,6 @@ const styles = {
     marginBottom: '1rem',
   },
   title: {
-    fontSize: '48px',
     fontWeight: '400',
     lineHeight: '1.2',
     letterSpacing: '-1px',
@@ -45,7 +53,6 @@ const styles = {
     maxWidth: '480px',
     margin: '0 auto 2rem auto',
   },
-
 }
 
 export default Hero

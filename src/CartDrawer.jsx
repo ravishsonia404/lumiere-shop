@@ -93,7 +93,7 @@ const styles = {
     position: 'fixed',
     top: 0,
     bottom: 0,
-    width: '360px',
+    width: window.innerWidth < 768 ? '100%' : '360px',
     backgroundColor: '#ffffff',
     borderLeft: '1px solid #e5e5e5',
     zIndex: 200,

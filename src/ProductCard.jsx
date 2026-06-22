@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { imageToBase64 } from './imageToBase64'
 
 function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct, isAdmin }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -14,14 +13,43 @@ function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct, isA
 
   const displayPrice = product.salePrice || product.price
 
-  async function handleFileChange(e) {
-    const file = e.target.files[0]
-    if (!file) return
-    setUploading(true)
-    const base64 = await imageToBase64(file)
-    onImageUpload(product.id, base64)
-    setUploading(false)
+ function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX = 600
+        let w = img.width
+        let h = img.height
+        if (w > h && w > MAX) { h = (h * MAX) / w; w = MAX }
+        else if (h > MAX) { w = (w * MAX) / h; h = MAX }
+        canvas.width = w
+        canvas.height = h
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+        resolve(canvas.toDataURL('image/jpeg', 0.7))
+      }
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+async function handleFileChange(e) {
+  const file = e.target.files[0]
+  if (!file) return
+
+  if (file.size > 800000) {
+    alert('Image too large. Please use a photo under 800KB.')
+    return
   }
+
+  setUploading(true)
+  const compressed = await compressImage(file)
+  onImageUpload(product.id, compressed)
+  setUploading(false)
+}
 
   function handleChange(e) {
     setEditData({ ...editData, [e.target.name]: e.target.value })

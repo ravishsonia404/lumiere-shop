@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { imageToBase64 } from './imageToBase64'
 
 function AddProductModal({ onClose, onAdd }) {
   const [formData, setFormData] = useState({
@@ -21,8 +20,38 @@ function AddProductModal({ onClose, onAdd }) {
   function handleImageChange(e) {
     const file = e.target.files[0]
     if (!file) return
+
+    if (file.size > 800000) {
+      setError('Image too large. Please use a photo under 800KB.')
+      return
+    }
+
+    setError('')
     setImageFile(file)
     setPreview(URL.createObjectURL(file))
+  }
+
+  function compressImage(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX = 600
+          let w = img.width
+          let h = img.height
+          if (w > h && w > MAX) { h = (h * MAX) / w; w = MAX }
+          else if (h > MAX) { w = (w * MAX) / h; h = MAX }
+          canvas.width = w
+          canvas.height = h
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+          resolve(canvas.toDataURL('image/jpeg', 0.7))
+        }
+        img.src = e.target.result
+      }
+      reader.readAsDataURL(file)
+    })
   }
 
   async function handleSubmit() {
@@ -30,26 +59,32 @@ function AddProductModal({ onClose, onAdd }) {
     if (!formData.price) { setError('Please enter a price.'); return }
 
     setUploading(true)
+    setError('')
     let imageUrl = null
 
-    if (imageFile) {
-      imageUrl = await imageToBase64(imageFile)
+    try {
+      if (imageFile) {
+        imageUrl = await compressImage(imageFile)
+      }
+
+      const newProduct = {
+        name: formData.name.trim(),
+        category: formData.category,
+        price: Number(formData.price),
+        salePrice: formData.salePrice ? Number(formData.salePrice) : null,
+        badge: formData.badge || null,
+        image: imageUrl,
+        rating: 0,
+        reviews: 0,
+      }
+
+      await onAdd(newProduct)
+      onClose()
+    } catch (err) {
+      setError('Something went wrong. Try a smaller image.')
     }
 
-    const newProduct = {
-      name: formData.name.trim(),
-      category: formData.category,
-      price: Number(formData.price),
-      salePrice: formData.salePrice ? Number(formData.salePrice) : null,
-      badge: formData.badge || null,
-      image: imageUrl,
-      rating: 0,
-      reviews: 0,
-    }
-
-    onAdd(newProduct)
     setUploading(false)
-    onClose()
   }
 
   return (
@@ -69,11 +104,17 @@ function AddProductModal({ onClose, onAdd }) {
               <div style={styles.imagePlaceholder}>
                 <p style={styles.uploadIcon}>📷</p>
                 <p style={styles.uploadText}>Click to upload photo</p>
+                <p style={styles.uploadHint}>Max 800KB</p>
               </div>
             )}
             <label style={styles.imageLabel}>
               {preview ? 'Change Photo' : 'Upload Photo'}
-              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleImageChange}
+              />
             </label>
           </div>
 
@@ -81,7 +122,13 @@ function AddProductModal({ onClose, onAdd }) {
             {error && <p style={styles.error}>{error}</p>}
 
             <label style={styles.label}>Product Name *</label>
-            <input style={styles.input} name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Floral Summer Dress" />
+            <input
+              style={styles.input}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. Floral Summer Dress"
+            />
 
             <label style={styles.label}>Category *</label>
             <select style={styles.input} name="category" value={formData.category} onChange={handleChange}>
@@ -91,10 +138,24 @@ function AddProductModal({ onClose, onAdd }) {
             </select>
 
             <label style={styles.label}>Price (₹) *</label>
-            <input style={styles.input} name="price" type="number" value={formData.price} onChange={handleChange} placeholder="e.g. 1999" />
+            <input
+              style={styles.input}
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="e.g. 1999"
+            />
 
             <label style={styles.label}>Sale Price (₹) — optional</label>
-            <input style={styles.input} name="salePrice" type="number" value={formData.salePrice} onChange={handleChange} placeholder="e.g. 1499" />
+            <input
+              style={styles.input}
+              name="salePrice"
+              type="number"
+              value={formData.salePrice}
+              onChange={handleChange}
+              placeholder="e.g. 1499"
+            />
 
             <label style={styles.label}>Badge — optional</label>
             <select style={styles.input} name="badge" value={formData.badge} onChange={handleChange}>
@@ -107,7 +168,15 @@ function AddProductModal({ onClose, onAdd }) {
 
         <div style={styles.footer}>
           <button style={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button style={styles.addBtn} onClick={handleSubmit} disabled={uploading}>
+          <button
+            style={{
+              ...styles.addBtn,
+              opacity: uploading ? 0.7 : 1,
+              cursor: uploading ? 'not-allowed' : 'pointer'
+            }}
+            onClick={handleSubmit}
+            disabled={uploading}
+          >
             {uploading ? '⏳ Saving...' : '➕ Add Product'}
           </button>
         </div>
@@ -125,9 +194,10 @@ const styles = {
   closeBtn: { background: 'none', border: 'none', fontSize: '16px', color: '#888', cursor: 'pointer' },
   body: { padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' },
   imageUploadBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' },
-  imagePlaceholder: { width: '100%', height: '180px', backgroundColor: '#f0ede8', border: '2px dashed #ddd', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
-  uploadIcon: { fontSize: '36px', marginBottom: '8px' },
+  imagePlaceholder: { width: '100%', height: '180px', backgroundColor: '#f0ede8', border: '2px dashed #ddd', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' },
+  uploadIcon: { fontSize: '36px' },
   uploadText: { fontSize: '12px', color: '#aaa', letterSpacing: '1px' },
+  uploadHint: { fontSize: '11px', color: '#ccc', letterSpacing: '0.5px' },
   previewImg: { width: '100%', height: '180px', objectFit: 'cover', border: '1px solid #e5e5e5' },
   imageLabel: { padding: '8px 20px', border: '1px solid #1a1a1a', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', color: '#1a1a1a' },
   fields: { display: 'flex', flexDirection: 'column', gap: '6px' },
@@ -136,7 +206,7 @@ const styles = {
   input: { padding: '9px 12px', border: '1px solid #e5e5e5', fontSize: '13px', fontFamily: 'inherit', width: '100%', backgroundColor: '#fafafa', outline: 'none' },
   footer: { padding: '1.25rem 1.5rem', borderTop: '1px solid #e5e5e5', display: 'flex', gap: '10px', justifyContent: 'flex-end' },
   cancelBtn: { padding: '10px 24px', background: 'transparent', border: '1px solid #e5e5e5', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'inherit', cursor: 'pointer', color: '#555' },
-  addBtn: { padding: '10px 24px', backgroundColor: '#1a1a1a', color: '#ffffff', border: 'none', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'inherit', cursor: 'pointer' },
+  addBtn: { padding: '10px 24px', backgroundColor: '#1a1a1a', color: '#ffffff', border: 'none', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'inherit' },
 }
 
 export default AddProductModal

@@ -7,9 +7,7 @@ function CartDrawer({ isOpen, onClose, cart, onChangeQty, onRemove }) {
 
       <div style={{ ...styles.drawer, right: isOpen ? '0' : '-380px' }}>
         <div style={styles.header}>
-          <h3 style={styles.heading}>
-            Your Bag ({cart.reduce((s, i) => s + i.qty, 0)})
-          </h3>
+          <button style={styles.backBtn} onClick={onClose}>← Continue Shopping</button>
           <button style={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
@@ -96,6 +94,19 @@ const styles = {
   closeBtn: {
     background: 'none', border: 'none',
     fontSize: '16px', color: '#888', cursor: 'pointer'
+  },
+  closeBtn: {
+  background: 'none', border: 'none',
+  fontSize: '16px', color: '#888', cursor: 'pointer'
+},
+  backBtn: {
+    background: 'none',
+    border: 'none',
+    fontSize: '13px',
+    color: '#888',
+    cursor: 'pointer',
+    letterSpacing: '0.5px',
+    fontFamily: 'inherit',
   },
   items: { flex: 1, overflowY: 'auto', padding: '1rem 1.5rem' },
   empty: { textAlign: 'center', padding: '3rem 1rem', color: '#aaa' },

@@ -68,7 +68,7 @@ function App() {
       }
       return [...prevCart, { ...product, qty: 1 }]
     })
-    setCartOpen(true)
+    
   }
 
   function handleChangeQty(id, delta) {

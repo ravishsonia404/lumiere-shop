@@ -1,4 +1,4 @@
-function CartDrawer({ isOpen, onClose, cart, onChangeQty, onRemove }) {
+function CartDrawer({ isOpen, onClose, cart, onChangeQty, onRemove, onCheckout }) {
   const total = cart.reduce((sum, item) => sum + (item.salePrice || item.price) * item.qty, 0)
 
   return (
@@ -60,7 +60,7 @@ function CartDrawer({ isOpen, onClose, cart, onChangeQty, onRemove }) {
               <span>Subtotal</span>
               <span style={{ fontWeight: '500' }}>₹{total}</span>
             </div>
-            <button style={styles.checkoutBtn} onClick={() => alert(`Order placed! Total: ₹${total}. Payment coming soon.`)}>
+            <button style={styles.checkoutBtn} onClick={onCheckout}>
               Proceed to Checkout
             </button>
             <p style={styles.freeShipping}>Free shipping on orders over ₹999</p>

@@ -26,6 +26,14 @@ export function useProducts() {
         }
       } else {
         const loaded = snapshot.docs.map(d => ({ ...d.data(), id: d.id }))
+
+
+        for (const product of loaded) {
+          if (product.stock === undefined) {
+           await updateDoc(doc(db, 'products', String(product.id)), { stock: 10 })
+          }
+        }
+        
         setProducts(loaded)
         setLoading(false)
       }

@@ -5,6 +5,7 @@ import {
   setDoc,
   onSnapshot,
   updateDoc,
+  deleteDoc,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import productsData from './products'
@@ -33,7 +34,7 @@ export function useProducts() {
            await updateDoc(doc(db, 'products', String(product.id)), { stock: 10 })
           }
         }
-        
+
         setProducts(loaded)
         setLoading(false)
       }
@@ -67,5 +68,9 @@ export function useProducts() {
     }
   }
 
-  return { products, loading, updateProduct, addProduct, updateStock, reduceStock }
+  async function deleteProduct(id) {
+  await deleteDoc(doc(db, 'products', String(id)))
+}
+
+  return { products, loading, updateProduct, addProduct, updateStock, reduceStock, deleteProduct }
 }

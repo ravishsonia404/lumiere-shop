@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct, isAdmin }) {
+function ProductCard({ product, onAddToCart, onImageUpload, onUpdateProduct, onDelete,onViewDetail, isAdmin }) {
   const [isEditing, setIsEditing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [editData, setEditData] = useState({
@@ -78,7 +78,7 @@ async function handleFileChange(e) {
 
   return (
     <div style={styles.card}>
-      <div style={styles.imageBox}>
+      <div style={styles.imageBox} onClick={() => onViewDetail(product)}>
         {product.image ? (
           <img src={product.image} alt={product.name} style={styles.image} />
         ) : (
@@ -131,23 +131,48 @@ async function handleFileChange(e) {
             <input style={styles.input} name="salePrice" type="number" value={editData.salePrice} onChange={handleChange} placeholder="Optional" />
 
             <label style={styles.label}>Badge</label>
-            <select style={styles.input} name="badge" value={editData.badge} onChange={handleChange}>
+            <select
+              style={styles.input}
+              name="badge"
+              value={editData.badge}
+              onChange={handleChange}
+            >
               <option value="">None</option>
               <option value="New">New</option>
               <option value="Sale">Sale</option>
             </select>
 
-          {isAdmin && (
-            <button style={styles.editBtn} onClick={() => setIsEditing(true)}>
-              ✏️ Edit
-            </button>
-          )} 
+            <div style={styles.editButtons}>
+              <button style={styles.saveBtn} onClick={handleSave}>
+                ✓ Save
+              </button>
+
+              <button style={styles.cancelBtn} onClick={handleCancel}>
+               ✕ Cancel
+              </button>
+            </div>
+
+            {isAdmin && (
+              <button
+                style={styles.deleteBtn}
+                onClick={() => {
+                  if (window.confirm(`Delete "${product.name}"? This cannot be undone.`)) {
+                    onDelete(product.id)
+                  }
+                }}
+              >
+                🗑 Delete Product
+              </button>
+              )}
 
           </div>
         ) : (
           <>
             <div style={styles.nameRow}>
-              <p style={styles.name}>{product.name}</p>
+              <p style={{ ...styles.name, cursor: 'pointer' }} onClick={() => onViewDetail(product)}>
+                {product.name}
+              </p>
+              
               {isAdmin && ( 
                <button style={styles.editBtn} onClick={() => setIsEditing(true)}>✏️ Edit</button>
               )} 
@@ -214,6 +239,19 @@ const styles = {
   editButtons: { display: 'flex', gap: '8px', marginTop: '8px' },
   saveBtn: { flex: 1, padding: '9px', backgroundColor: '#1a1a1a', color: '#ffffff', border: 'none', fontSize: '12px', letterSpacing: '1px', fontFamily: 'inherit', cursor: 'pointer' },
   cancelBtn: { flex: 1, padding: '9px', backgroundColor: 'transparent', color: '#555', border: '1px solid #e5e5e5', fontSize: '12px', letterSpacing: '1px', fontFamily: 'inherit', cursor: 'pointer' },
+  deleteBtn: {
+  width: '100%',
+  marginTop: '8px',
+  padding: '8px',
+  backgroundColor: 'transparent',
+  border: '1px solid #c0392b',
+  color: '#c0392b',
+  fontSize: '11px',
+  letterSpacing: '1px',
+  textTransform: 'uppercase',
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+},
 }
 
 export default ProductCard

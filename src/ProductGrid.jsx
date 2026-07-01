@@ -4,6 +4,7 @@ import { useProducts } from './useProducts'
 import AddProductModal from './AddProductModal'
 import SearchBar from './SearchBar'
 import { useAdmin } from './AdminContext'
+import ProductDetail from './ProductDetail'
 
 const filters = ['All', 'Women', 'Men', 'Accessories']
 
@@ -11,7 +12,8 @@ function ProductGrid({ onAddToCart }) {
   const [activeFilter, setActiveFilter] = useState('All')
   const [showModal, setShowModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { products, loading, updateProduct, addProduct } = useProducts()
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const { products, loading, updateProduct, addProduct, updateStock, reduceStock, deleteProduct } = useProducts()
   const { isAdmin } = useAdmin()
 
   function handleImageUpload(id, imageUrl) {
@@ -20,6 +22,11 @@ function ProductGrid({ onAddToCart }) {
 
   function handleUpdateProduct(id, updatedData) {
     updateProduct(id, updatedData)
+  }
+  
+  function handleDeleteProduct(id) {
+  deleteProduct(id)
+  setSelectedProduct(null)
   }
 
   function handleAddProduct(newProduct) {
@@ -87,6 +94,8 @@ function ProductGrid({ onAddToCart }) {
             onAddToCart={onAddToCart}
             onImageUpload={handleImageUpload}
             onUpdateProduct={handleUpdateProduct}
+            onDelete={handleDeleteProduct}
+            onViewDetail={setSelectedProduct}
             isAdmin={isAdmin}
           />
         ))}
@@ -98,6 +107,18 @@ function ProductGrid({ onAddToCart }) {
           onAdd={handleAddProduct}
         />
       )}
+
+      {selectedProduct && (
+        <ProductDetail
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={onAddToCart}
+          isAdmin={isAdmin}
+          onImageUpload={handleImageUpload}
+          onUpdateProduct={handleUpdateProduct}
+        />
+      )}
+      
     </section>
   )
 }

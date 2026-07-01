@@ -165,8 +165,23 @@ async function handleFileChange(e) {
 
             <p style={styles.categoryTag}>{product.category}</p>
 
-            <button style={styles.addBtn} onClick={() => onAddToCart(product)}>
-              Add to Bag
+            {(product.stock || 0) > 0 && (product.stock || 0) < 5 && (
+            <p style={{ fontSize: '11px', color: '#e67e22', marginBottom: '6px' }}>
+            Only {product.stock} left!
+            </p>
+            )}   
+
+            <button style={{
+              ...styles.addBtn,
+              opacity: (product.stock || 0) === 0 ? 0.5 : 1,
+              cursor: (product.stock || 0) === 0 ? 'not-allowed' : 'pointer',
+              backgroundColor: (product.stock || 0) === 0 ? '#aaa' : 'transparent',
+            }}
+              onClick={() => (product.stock || 0) > 0 && onAddToCart(product)}
+              disabled={(product.stock || 0) === 0}
+            >
+              {(product.stock || 0) === 0 ? 'Out of Stock' : 'Add to Bag'}
+              
             </button>
           </>
         )}

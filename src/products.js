@@ -14,6 +14,7 @@ const products = [
     image: dress,
     rating: 4.8,
     reviews: 24,
+    stock: 10,
   },
   {
     id: 2,
@@ -24,6 +25,7 @@ const products = [
     image: premiumBotcut,
     rating: 4.6,
     reviews: 18,
+    stock: 8,
   },
   {
     id: 3,
@@ -35,6 +37,7 @@ const products = [
     image: wideLegTrouser,
     rating: 4.7,
     reviews: 31,
+    stock: 15
   },
   {
     id: 4,
@@ -45,6 +48,7 @@ const products = [
     image: importedCombo,
     rating: 4.5,
     reviews: 12,
+    stock: 6,
   },
   {
     id: 5,
@@ -55,6 +59,7 @@ const products = [
     image: null,
     rating: 4.4,
     reviews: 20,
+    stock: 12,
   },
   {
     id: 6,
@@ -65,6 +70,7 @@ const products = [
     image: leatherBelt,
     rating: 4.9,
     reviews: 45,
+    stock: 16,
   },
   {
     id: 7,
@@ -75,6 +81,7 @@ const products = [
     image: null,
     rating: 4.8,
     reviews: 9,
+    stock: 8,
   },
   {
     id: 8,
@@ -85,6 +92,7 @@ const products = [
     image: null,
     rating: 4.6,
     reviews: 17,
+    stock: 6,
   },
   {
     id: 9,
@@ -95,6 +103,7 @@ const products = [
     image: null,
     rating: 4.7,
     reviews: 28,
+    stock: 5,
   },
 ]
 

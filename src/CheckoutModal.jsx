@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { collection, addDoc } from 'firebase/firestore'
 import { db } from './firebase'
 
-function CheckoutModal({ cart, total, onClose, onSuccess }) {
+function CheckoutModal({ cart, total, onClose, onSuccess, onReduceStock }) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -55,6 +55,7 @@ function CheckoutModal({ cart, total, onClose, onSuccess }) {
       }
 
       await addDoc(collection(db, 'orders'), order)
+      await onReduceStock(cart)
       onSuccess(orderId)
     } catch (err) {
       setError('Something went wrong. Please try again.')
